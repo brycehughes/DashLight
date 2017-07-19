@@ -20,7 +20,17 @@ password = 'Bulldawg7!'
 def main():
     session = DecoraWifiSession()
     success = session.login(email,password)
-    print success
+    perms = session.residential_permissions()
+    residences = []
+    for permission in perms:
+        for res in session.residences(permission['residentialAccountId']):
+            residences.append(res)
+
+    switches = []
+    for residence in residences:
+        for switch in session.iot_switches(residence['id']):
+            switches.append(switch)
+            print switch
 
 
 class DecoraWifiSession:
@@ -47,7 +57,7 @@ class DecoraWifiSession:
         uri = LEVITON_ROOT + api
 
         if payload is not None:
-            payload_json = JSON.dumps(payload)
+            payload_json = json.dumps(payload)
         else:
             payload_json = ''
 
@@ -119,6 +129,7 @@ class DecoraWifiSession:
         """Update a Leviton switch with new attributes."""
         return self.call_api("/IotSwitches/%s" % switch_id, attribs, 'put')
 
+main()
 
 # class DecoraWifiLight(Light):
 #     """Representation of a Decora WiFi switch."""
