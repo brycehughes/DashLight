@@ -120,59 +120,59 @@ class DecoraWifiSession:
         return self.call_api("/IotSwitches/%s" % switch_id, attribs, 'put')
 
 
-class DecoraWifiLight(Light):
-    """Representation of a Decora WiFi switch."""
+# class DecoraWifiLight(Light):
+#     """Representation of a Decora WiFi switch."""
 
-    def __init__(self, session, switch):
-        """Initialize the switch."""
-        self._session = session
-        self._id = switch['id']
-        self._switch = switch
+#     def __init__(self, session, switch):
+#         """Initialize the switch."""
+#         self._session = session
+#         self._id = switch['id']
+#         self._switch = switch
 
-    @property
-    def supported_features(self):
-        """Return supported features."""
-        if self._switch['canSetLevel']:
-            return SUPPORT_BRIGHTNESS | SUPPORT_TRANSITION
-        else:
-            return 0
+#     @property
+#     def supported_features(self):
+#         """Return supported features."""
+#         if self._switch['canSetLevel']:
+#             return SUPPORT_BRIGHTNESS | SUPPORT_TRANSITION
+#         else:
+#             return 0
 
-    @property
-    def name(self):
-        """Return the display name of this switch."""
-        return self._switch['name']
+#     @property
+#     def name(self):
+#         """Return the display name of this switch."""
+#         return self._switch['name']
 
-    @property
-    def brightness(self):
-        """Return the brightness of the dimmer switch."""
-        return int(self._switch['brightness'] * 255 / 100)
+#     @property
+#     def brightness(self):
+#         """Return the brightness of the dimmer switch."""
+#         return int(self._switch['brightness'] * 255 / 100)
 
-    @property
-    def is_on(self):
-        """Return true if switch is on."""
-        return self._switch['power'] == 'ON'
+#     @property
+#     def is_on(self):
+#         """Return true if switch is on."""
+#         return self._switch['power'] == 'ON'
 
-    def turn_on(self, **kwargs):
-        """Instruct the switch to turn on & adjust brightness."""
-        attribs = {'power': 'ON'}
+#     def turn_on(self, **kwargs):
+#         """Instruct the switch to turn on & adjust brightness."""
+#         attribs = {'power': 'ON'}
 
-        if ATTR_BRIGHTNESS in kwargs:
-            min_level = self._switch.get('minLevel', 0)
-            max_level = self._switch.get('maxLevel', 100)
-            brightness = int(kwargs[ATTR_BRIGHTNESS] * max_level / 255)
-            brightness = max(brightness, min_level)
-            attribs['brightness'] = brightness
+#         if ATTR_BRIGHTNESS in kwargs:
+#             min_level = self._switch.get('minLevel', 0)
+#             max_level = self._switch.get('maxLevel', 100)
+#             brightness = int(kwargs[ATTR_BRIGHTNESS] * max_level / 255)
+#             brightness = max(brightness, min_level)
+#             attribs['brightness'] = brightness
 
-        if ATTR_TRANSITION in kwargs:
-            transition = int(kwargs[ATTR_TRANSITION])
-            attribs['fadeOnTime'] = attribs['fadeOffTime'] = transition
+#         if ATTR_TRANSITION in kwargs:
+#             transition = int(kwargs[ATTR_TRANSITION])
+#             attribs['fadeOnTime'] = attribs['fadeOffTime'] = transition
 
-        self._session.iot_switch_update(self._switch['id'], attribs)
+#         self._session.iot_switch_update(self._switch['id'], attribs)
 
-    def turn_off(self, **kwargs):
-        """Instruct the switch to turn off."""
-        self._session.iot_switch_update(self._switch['id'], {'power': 'OFF'})
+#     def turn_off(self, **kwargs):
+#         """Instruct the switch to turn off."""
+#         self._session.iot_switch_update(self._switch['id'], {'power': 'OFF'})
 
-    def update(self):
-        """Fetch new state data for this switch."""
-        self._switch = self._session.iot_switch_data(self._id)
+#     def update(self):
+#         """Fetch new state data for this switch."""
+#         self._switch = self._session.iot_switch_data(self._id)
