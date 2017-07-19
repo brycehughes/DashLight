@@ -1,8 +1,8 @@
-from scapy.all import *
+#from scapy.all import *
 import json
 import logging
 import requests
-import voluptuous as vol
+
 
 
 ignore = {'fc:f8:ae:4e:a2:4b','b8:27:eb:45:1c:54','00:00:00:00:00:00'}
@@ -17,10 +17,10 @@ NOTIFICATION_TITLE = 'myLeviton Decora Setup'
 
 email='bhugs09@gmail.com'
 password = 'Bulldawg7!'
-
-session = DecoraWifiSession()
-success = session.login(email,password);
-print success
+def main():
+    session = DecoraWifiSession()
+    success = session.login(email,password)
+    print success
 
 
 class DecoraWifiSession:
