@@ -3,35 +3,42 @@ import json
 import logging
 import requests
 
+#Common devices which we don't care about like router and phones. Used when trying to find the actual 
+#identifier for the Dash Button
+ignore = {'--','--','--'}
 
-
-ignore = {'fc:f8:ae:4e:a2:4b','b8:27:eb:45:1c:54','00:00:00:00:00:00'}
-
-lights= {'00:07:a6:03:62:db':'Living Room'}
+lights= {'--':'Living Room'}
+#Local IP
 lightsip  = {'192.168.1.167':'Living Room'} 
 
+#Base API information
 LEVITON_ROOT = 'https://my.leviton.com/api'
 DOMAIN = 'myLeviton'
 NOTIFICATION_ID = 'leviton_notification'
 NOTIFICATION_TITLE = 'myLeviton Decora Setup'
 
-email='bhugs09@gmail.com'
-password = 'Bulldawg7!'
+#Login information
+email='--Email--'
+password = '--Password--'
+
+#Login
 def main():
     session = DecoraWifiSession()
     success = session.login(email,password)
     perms = session.residential_permissions()
+    #Get houses
     residences = []
     for permission in perms:
         for res in session.residences(permission['residentialAccountId']):
             residences.append(res)
-
+    #Get switches
     switches = []
     for residence in residences:
         for switch in session.iot_switches(residence['id']):
+            #Get all switches (only  1 at this point) 
             switches.append(switch)
             print switch
-
+            
 
 class DecoraWifiSession:
     """This class represents an authorized HTTPS session with the LCS API."""
@@ -85,7 +92,8 @@ class DecoraWifiSession:
             'clientId': 'levdb-echo-proto',  # from myLeviton App
             'registeredVia': 'myLeviton'     # from myLeviton App
         }
-
+        
+        #Call Login API
         login_json = self.call_api('/Person/login', payload, 'post')
 
         if login_json is None:
@@ -106,6 +114,8 @@ class DecoraWifiSession:
 
         return self.call_api('/Person/logout', None, 'post')
 
+    #Different API Calls which are useful
+    
     def residential_permissions(self):
         """Get Leviton residential permissions objects."""
         api = "/Person/%s/residentialPermissions" % self._user_id
@@ -130,60 +140,3 @@ class DecoraWifiSession:
         return self.call_api("/IotSwitches/%s" % switch_id, attribs, 'put')
 
 main()
-
-# class DecoraWifiLight(Light):
-#     """Representation of a Decora WiFi switch."""
-
-#     def __init__(self, session, switch):
-#         """Initialize the switch."""
-#         self._session = session
-#         self._id = switch['id']
-#         self._switch = switch
-
-#     @property
-#     def supported_features(self):
-#         """Return supported features."""
-#         if self._switch['canSetLevel']:
-#             return SUPPORT_BRIGHTNESS | SUPPORT_TRANSITION
-#         else:
-#             return 0
-
-#     @property
-#     def name(self):
-#         """Return the display name of this switch."""
-#         return self._switch['name']
-
-#     @property
-#     def brightness(self):
-#         """Return the brightness of the dimmer switch."""
-#         return int(self._switch['brightness'] * 255 / 100)
-
-#     @property
-#     def is_on(self):
-#         """Return true if switch is on."""
-#         return self._switch['power'] == 'ON'
-
-#     def turn_on(self, **kwargs):
-#         """Instruct the switch to turn on & adjust brightness."""
-#         attribs = {'power': 'ON'}
-
-#         if ATTR_BRIGHTNESS in kwargs:
-#             min_level = self._switch.get('minLevel', 0)
-#             max_level = self._switch.get('maxLevel', 100)
-#             brightness = int(kwargs[ATTR_BRIGHTNESS] * max_level / 255)
-#             brightness = max(brightness, min_level)
-#             attribs['brightness'] = brightness
-
-#         if ATTR_TRANSITION in kwargs:
-#             transition = int(kwargs[ATTR_TRANSITION])
-#             attribs['fadeOnTime'] = attribs['fadeOffTime'] = transition
-
-#         self._session.iot_switch_update(self._switch['id'], attribs)
-
-#     def turn_off(self, **kwargs):
-#         """Instruct the switch to turn off."""
-#         self._session.iot_switch_update(self._switch['id'], {'power': 'OFF'})
-
-#     def update(self):
-#         """Fetch new state data for this switch."""
-#         self._switch = self._session.iot_switch_data(self._id)
